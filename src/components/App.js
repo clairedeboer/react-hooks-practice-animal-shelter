@@ -1,11 +1,28 @@
-import React, { useState } from "react";
+import React from "react";
 
 import Filters from "./Filters";
 import PetBrowser from "./PetBrowser";
+import { useState } from "react";
 
 function App() {
   const [pets, setPets] = useState([]);
   const [filters, setFilters] = useState({ type: "all" });
+
+  const handleFindPetsClick = () => {
+    fetch(`http://localhost:3001/pets?type=${filters}`)
+      .then((r) => r.json())
+      .then(setPets);
+  };
+
+  const handleChangeType = (event) => setFilters(event.target.value);
+
+  const onAdoptPet = (id) => {
+    const updatedPets = pets.map((pet)=> {
+      return pet.id === id ? {...pet, isAdopted:true} : pet
+    })
+    setPets(updatedPets)
+    console.log(id)
+  }
 
   return (
     <div className="ui container">
@@ -15,10 +32,16 @@ function App() {
       <div className="ui container">
         <div className="ui grid">
           <div className="four wide column">
-            <Filters />
+            <Filters
+              onChangeType={handleChangeType}
+              onFindPetsClick={handleFindPetsClick}
+            />
           </div>
           <div className="twelve wide column">
-            <PetBrowser />
+            <PetBrowser 
+            pets={pets}
+            onAdoptPet={onAdoptPet}
+            />
           </div>
         </div>
       </div>
